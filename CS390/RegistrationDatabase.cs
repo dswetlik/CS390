@@ -9,110 +9,142 @@ namespace CS390
 {
     class RegistrationDatabase
     {
+        // use of enums to determine which database is being read
         public enum DatabaseType
         {
             user,
-            course
+            course,
+            courseHistory,
+            // start of prerequisite extra-credit
+            coursePrerequisite
         }
 
-        static SortedDictionary<string, User> userDatabase = new SortedDictionary<string, User>();
+        // both static to retain same memory throughout life of the program.
+        // basically, this whole class either IS or SHOULD be static. RegistrationDatabase is never created as an object, just used as a helper class.
+        public static SortedDictionary<string, User> userDatabase = new SortedDictionary<string, User>();
         static SortedDictionary<string, Course> courseDatabase = new SortedDictionary<string, Course>();
 
+        // The main performance of the class is this, the read function.
+        /// <summary>
+        /// Reads in information from File, assigning the info to proper database using DatabaseType
+        /// </summary>
+        /// <param name="file">File to be Read into Database</param>
+        /// <param name="databaseType">Enum Type of Database to Read</param>
         public static void Read(StreamReader file, DatabaseType databaseType)
         {
+            // switch statement on databaseType
             switch (databaseType)
             {
                 case DatabaseType.user:
                     while(!file.EndOfStream)
                     {
-                        string[] userInfo = file.ReadLine().Split(' ');
+                        string userInfo = file.ReadLine();
+                        string user = userInfo.Substring(0,11).TrimEnd(' '); userInfo = userInfo.Remove(0, 11);
+                        string pass = userInfo.Substring(0,11).TrimEnd(' '); userInfo = userInfo.Remove(0, 11);
+                        string first = userInfo.Substring(0, 16).TrimEnd(' '); userInfo = userInfo.Remove(0, 16);
+                        string middle = userInfo.Substring(0, 16).TrimEnd(' '); userInfo = userInfo.Remove(0, 16);
+                        string last = userInfo.Substring(0, 16).TrimEnd(' '); userInfo = userInfo.Remove(0, 16);
+                        string stat = userInfo.Substring(0, userInfo.Length).TrimEnd(' ');
 
-                        CreateUser(userInfo[0], userInfo[1], userInfo[2], userInfo[3], userInfo[4], userInfo[5]);
+                        // takes gathered information and pushes it into a helper function to create User object
+                        CreateUser(user, pass, first, middle, last, stat);
                     }
-                    break;
+                    // builds a list of advisee students for each faculty user object 
+                    BuildStudentAdviseeList();
+                break;
                 case DatabaseType.course:
                     while(!file.EndOfStream)
                     {
-                        string[] courseInfo = file.ReadLine().Split(' ');
-                        Faculty faculty = (Faculty)GetUser(courseInfo[2]);
-                        string courseCredit = courseInfo[3] + "0";
-                        int seatCount = Convert.ToInt16(courseInfo[4]);
-                        int blocks = Convert.ToInt16(courseInfo[5]);
-                        List<string> dayBlocks = new List<string>();
-                        List<string> timeBlocks = new List<string>();
+                        string courseInfo = file.ReadLine();
+                        string courseName = courseInfo.Substring(0, 11).TrimEnd(' '); courseInfo = courseInfo.Remove(0, 11);
+                        string courseTitle = courseInfo.Substring(0, 16).TrimEnd(' '); courseInfo = courseInfo.Remove(0, 16);
+                        Faculty faculty = (Faculty)GetUser(courseInfo.Substring(0,11).TrimEnd(' ')); courseInfo = courseInfo.Remove(0, 11);
+                        string courseCredit = courseInfo.Substring(0, 5).TrimEnd(' '); courseInfo = courseInfo.Remove(0, 5);
+                        int seatCount = Convert.ToInt16(courseInfo.Substring(0,4).TrimEnd(' ')); courseInfo = courseInfo.Remove(0, 4);
+                        int blocks = Convert.ToInt16(courseInfo.Substring(0,2).TrimEnd(' ')); courseInfo = courseInfo.Remove(0, 2);
 
-                        for(int x = 1; x <= blocks; x++)
+                        // We used to do the conversion of the ##### code here, but we moved it into
+                        // the course class to more easily change, add, or remove dayTime blocks.
+                        List<int> dayTimeBlocks = new List<int>();
+
+                        for (int x = 1; x <= blocks; x++)
                         {
-                            int timeBlock = Convert.ToInt16(courseInfo[5 + x]);
-                            string days = "";
-                            string times = "";
-                            int day = timeBlock / 1000;
+                            int timeBlock = 0;
 
-                            if (day >= 16) {
-                                day -= 16;
-                                days += "F";
-                            }
-                            if(day >= 8) {
-                                day -= 8;
-                                days += "R";
-                            }
-                            if(day >= 4) {
-                                day -= 4;
-                                days += "W";
-                            }
-                            if(day >= 2) {
-                                day -= 2;
-                                days += "T";
-                            }
-                            if(day == 1) {
-                                day -= 1;
-                                days += "M";
-                            }
-
-                            dayBlocks.Add(ReverseString(days));
-
-                            float time = (((timeBlock / 10) % 100) / 2);
-
-                            if (time >= 12)
-                            {    
-                                if(time > 12)
-                                    time -= 12;
-                                int minute = (int)(((decimal)time % 1) * 10);
-                                minute = (60 / 10) * minute;
-                                times += time + ":" + minute + "0" + " PM";
+                            // this if statement just ensures that we don't get an out of bounds error
+                            if (x < blocks)
+                            {
+                                timeBlock = Convert.ToInt16(courseInfo.Substring(0, 6).TrimEnd(' ')); courseInfo = courseInfo.Remove(0, 6);
                             }
                             else
-                            {
-                                int minute = (int)(((decimal)time % 1) * 10);
-                                minute = (60 / 10) * minute;
-                                times += time + ":" + minute + "0" + " AM";
+                                timeBlock = Convert.ToInt16(courseInfo.Substring(0, courseInfo.Length).TrimEnd(' '));
 
-                            }
-
-                            timeBlocks.Add(times);
+                            dayTimeBlocks.Add(timeBlock);
                         }
-
-                        CreateCourse(courseInfo[0], courseInfo[1], faculty, courseCredit, seatCount, dayBlocks, timeBlocks);
+                        
+                        // gathered information is pushed to helper function to create a course object
+                        CreateCourse(courseName, courseTitle, faculty, courseCredit, seatCount, dayTimeBlocks);
                     }
-                    break;
+                    // Takes built course database and adds it to the correct faculty User object
+                    AddCoursesToFaculty();
+                break;
+                case DatabaseType.courseHistory:
+                    while(!file.EndOfStream)
+                    {
+                        string historyInfo = file.ReadLine();
+                        string user = historyInfo.Substring(0, 11).TrimEnd(' '); historyInfo = historyInfo.Remove(0, 11);
+                        int numCourses = Convert.ToInt16(historyInfo.Substring(0, 3).TrimEnd(' ')); historyInfo = historyInfo.Remove(0, 3);
+                        string courseID;
+                        string term;
+                        string credit;
+                        string grade;
+
+                        // for loop goes through all the courses per user for a given User
+                        for(int i = 0; i < numCourses; i++)
+                        {
+                            courseID = historyInfo.Substring(0, 11).TrimEnd(' '); historyInfo = historyInfo.Remove(0, 11);
+                            term = historyInfo.Substring(0, 4).TrimEnd(' '); historyInfo = historyInfo.Remove(0, 4);
+                            credit = historyInfo.Substring(0, 5).TrimEnd(' '); historyInfo = historyInfo.Remove(0, 5);
+                            if (i < numCourses - 1) {
+                                grade = historyInfo.Substring(0, 4).TrimEnd(' '); historyInfo = historyInfo.Remove(0, 4);
+                            }
+                            else
+                                grade = historyInfo.Substring(0, historyInfo.Length).TrimEnd(' ');
+                            CreateHistory(user, courseID, term, credit, grade);
+                        }
+                    }
+                    // Same as the previous two functions like this, but adds student objects to a course list.
+                    AddStudentsToCourses();
+                break;
             }
         }
 
+        /// <summary>
+        /// Helper function for Read, creates a course object and adds it to the course database.
+        /// </summary>
         static void CreateCourse(string courseID, string courseName, Faculty faculty, string courseCredit,
-            int numSeats, List<string> days, List<string> times)
+            int numSeats, List<int> dayTime)
         {
             Course course;
-            course = new Course(courseID, courseName, faculty, courseCredit, numSeats, days, times);
+            course = new Course(courseID, courseName, faculty, courseCredit, numSeats, dayTime);
 
             courseDatabase.Add(courseID, course);
         }
 
-        static void CreateUser(string userName, string password, string firstName,
+        public static void CreateCourse(Course course, string courseID)
+        {
+            courseDatabase.Add(courseID, course);
+        }
+
+        /// <summary>
+        /// Helper function for Read, creates a user object and adds it to the user database.
+        /// </summary>
+        public static void CreateUser(string userName, string password, string firstName,
                 string middleName, string lastName, string status)
         {
             User user;
 
-            if (status.Equals("admin")) {
+            if (status.Equals("admin") || status.Equals("manager")) {
                 user = new Admin(userName, password, firstName, middleName, lastName, status);
             }
             else if (status.Equals("faculty")) {
@@ -125,6 +157,72 @@ namespace CS390
             userDatabase.Add(userName, user);
         }
 
+        /// <summary>
+        /// Helper function for Read, creates a polymorphisized course object and adds it to the course history list in a student object.
+        /// </summary>
+        static void CreateHistory(string userName, string courseName, string term, string courseCredit, string grade)
+        {
+            Student student = (Student)GetUser(userName);
+            Course course = new Course(student, courseName, term, courseCredit, grade);
+            student.AddCourseHistory(course);
+        }
+
+        /// <summary>
+        /// Builds the list inside faculty objects that holds student advisees.
+        /// </summary>
+        static void BuildStudentAdviseeList()
+        {
+            // runs through every key and user object inside user database
+            foreach(KeyValuePair<string, User> user in userDatabase)
+            {
+                if(!user.Value.GetStatus().Equals("admin") && !user.Value.GetStatus().Equals("manager") && !user.Value.GetStatus().Equals("faculty"))
+                {
+                    Faculty faculty = (Faculty)GetUser(user.Value.GetStatus());
+                    faculty.AddStudentAdvisee((Student)user.Value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Builds the list inside faculty objects that holds courses taught.
+        /// </summary>
+        static void AddCoursesToFaculty()
+        {
+            foreach(KeyValuePair<string, Course> course in courseDatabase)
+            {
+                Faculty faculty = course.Value.GetFaculty();
+                faculty.AddCourse(course.Value.GetCourseID());
+            }
+        }
+
+        /// <summary>
+        /// Builds the list inside course objects that holds current students.
+        /// </summary>
+        static void AddStudentsToCourses()
+        {
+            foreach(KeyValuePair<string, User> user in userDatabase)
+            {
+                if(!user.Value.GetStatus().Equals("admin") && !user.Value.GetStatus().Equals("manager") && !user.Value.GetStatus().Equals("faculty"))
+                {
+                    Student student = (Student)user.Value;
+                    List<Course> courses = student.GetCourseHistory();
+                    foreach(Course course in courses)
+                    {
+                        // this ensures that the course is valid and that it is in progress
+                        if (course.GetGrade() != null && course.GetGrade() == "N")
+                        {
+                            GetCourse(course.GetCourseID()).EnrollStudent(student);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets a course of courseID from courseDatabase
+        /// </summary>
+        /// <param name="courseID">Valid ID of a course inside courseDatabase</param>
+        /// <returns>Returns Course of courseID if valid, returns null if not.</returns>
         public static Course GetCourse(string courseID)
         {
             try
@@ -137,17 +235,30 @@ namespace CS390
             }
         }
 
+        /// <summary>
+        /// Returns the Course Database
+        /// </summary>
+        /// <returns>Course Database</returns>
         public static SortedDictionary<string, Course> GetCourses()
         {
             return courseDatabase;
         }
 
         /// <summary>
-        /// Helper method used to bypass verification, only used by RegistrationDatabase methods.
+        /// Returns the User Database.
+        /// </summary>
+        /// <returns>User Database</returns>
+        public static SortedDictionary<string, User> GetUserDatabase()
+        {
+            return userDatabase;
+        }
+
+        /// <summary>
+        /// Helper method used to bypass verification, only used by RegistrationDatabase methods and a few other cases.
         /// </summary>
         /// <param name="userName">Username of the User</param>
         /// <returns>User from User Database</returns>
-        static User GetUser(string userName)
+        public static User GetUser(string userName)
         {
             try
             {
@@ -159,6 +270,12 @@ namespace CS390
             }
         }
 
+        /// <summary>
+        /// Gets User after authenticating username and password.
+        /// </summary>
+        /// <param name="userName">Username of the user.</param>
+        /// <param name="password">Password of the user.</param>
+        /// <returns>Authenticated User</returns>
         public static User GetUser(string userName, string password)
         {
             if (VerifyUser(userName, password))
@@ -167,6 +284,9 @@ namespace CS390
                 return null;
         }
 
+        /// <summary>
+        /// Verifies that the user exists within User Database.
+        /// </summary>
         static bool VerifyUser(string userName, string password)
         {
             // try-catch statement verifies that the user exists inside the dictionary
@@ -186,17 +306,82 @@ namespace CS390
             }
         }
 
-
-        void GetTransaction()
+        /// <summary>
+        /// Removes a user from the User Database
+        /// </summary>
+        /// <param name="userName">Username of a Faculty or Student</param>
+        public static void RemoveUser(string userName)
         {
+            try
+            {
+                if(userDatabase[userName].GetStatus().Equals("faculty"))
+                {
+                    Faculty faculty = (Faculty)userDatabase[userName];
 
+                    foreach(KeyValuePair<string, Course> course in faculty.GetCourses())
+                    {
+                        course.Value.SetFaculty((Faculty)RegistrationDatabase.GetUser("Staff"));
+                    }
+
+                    foreach(Student student in faculty.GetStudentAdvisees())
+                    {
+                        student.ChangeAdvisor("Staff");
+                    }
+
+                    userDatabase.Remove(userName);
+                }
+                else // if (userDatabase[userName].GetStatus().Equals("student"))
+                {
+                    Student student = (Student)userDatabase[userName];
+
+                    foreach(KeyValuePair<string, Course> course in student.GetCourses())
+                    {
+                        course.Value.WithdrawStudent(student);
+                        student.DropCourse(course.Value.GetCourseID());
+                    }
+
+                    Faculty faculty = (Faculty)userDatabase[student.GetStatus()];
+                    faculty.RemoveStudentAdvisee((Student)RegistrationDatabase.GetUser("PRyan"));
+                    userDatabase.Remove(userName);
+                }
+
+            }
+            catch
+            {
+                Console.WriteLine(String.Format("User \"{0}\" Not Found!", userName));
+            }
         }
 
-        static string ReverseString(string x)
+        /// <summary>
+        /// Removes a course from the Course Database
+        /// </summary>
+        /// <param name="courseID">Course ID of a Course</param>
+        public static void RemoveCourse(string courseID)
         {
-            char[] y = x.ToCharArray();
-            Array.Reverse(y);
-            return new string(y);
+            try
+            {
+                Course course = courseDatabase[courseID];
+
+                course.GetFaculty().DropCourse(courseID);
+
+                foreach(KeyValuePair<string, Student> student in course.GetEnrolledStudents() )
+                {
+                    foreach (KeyValuePair<string, Course> courseS in student.Value.GetCourses())
+                    {
+                        if (courseS.Value.GetCourseTerm() != null && courseS.Value.GetCourseTerm().Equals("S15"))
+                        {
+                            if (courseS.Value.GetCourseID() == courseID)
+                                student.Value.DropCourse(courseID);
+                        }
+                    }
+                }
+
+                courseDatabase.Remove(courseID);
+            }
+            catch
+            {
+                Console.WriteLine(String.Format("Course \"{0}\" Not Found!", courseID));
+            }
         }
     }
 }

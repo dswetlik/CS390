@@ -19,7 +19,7 @@ namespace CS390.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -61,16 +61,12 @@ namespace CS390.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to CS-125-00 CompSciI BObama 1.00 30 2 21202 08253
-        ///CS-225-00 CompSciII BObama 1.00 20 1 21242
-        ///CS-355-00 AdvOOP BObama 1.00 15 1 21282
-        ///MTH-135-01 CalculusI MRomney 1.00 24 1 15253
-        ///MTH-135-02 CalculusI MRomney 1.00 20 1 15223
-        ///MTH-145-00 CalculusII MRomney 1.00 112 2 12162 04302.
+        ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static string CourseDatabase {
+        internal static byte[] courseDB {
             get {
-                return ResourceManager.GetString("CourseDatabase", resourceCulture);
+                object obj = ResourceManager.GetObject("courseDB", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         
@@ -79,8 +75,18 @@ namespace CS390.Properties {
         /// </summary>
         internal static System.Drawing.Bitmap Dashboard_Background {
             get {
-                object obj = ResourceManager.GetObject("Dashboard Background", resourceCulture);
+                object obj = ResourceManager.GetObject("Dashboard_Background", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] historyDB {
+            get {
+                object obj = ResourceManager.GetObject("historyDB", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         
@@ -105,15 +111,12 @@ namespace CS390.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to JBiden Delaware Joe Robinette Biden BObama
-        ///MRomney Mass Willard Mitt Romney faculty
-        ///BObama Illinois Barack Hussein Obama faculty
-        ///PRyan Cheese Paul Davis Ryan MRomney
-        ///Voter USA Jane Quincy Public admin.
+        ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static string UserDatabase {
+        internal static byte[] userDB {
             get {
-                return ResourceManager.GetString("UserDatabase", resourceCulture);
+                object obj = ResourceManager.GetObject("userDB", resourceCulture);
+                return ((byte[])(obj));
             }
         }
     }

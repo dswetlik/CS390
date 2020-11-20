@@ -16,11 +16,15 @@ namespace CS390
         [STAThread]
         static void Main()
         {
-            StreamReader userDatabase = OpenFile(BuildFilePath("UserDatabase.txt"));
-            StreamReader courseDatabase = OpenFile(BuildFilePath("CourseDatabase.txt"));
+            StreamReader userDatabase = OpenFile(BuildFilePath("userDB.in"));
+            StreamReader courseDatabase = OpenFile(BuildFilePath("courseDB.in"));
+            StreamReader courseHistoryDatabase = OpenFile(BuildFilePath("historyDB.in"));
 
             RegistrationDatabase.Read(userDatabase, RegistrationDatabase.DatabaseType.user);
             RegistrationDatabase.Read(courseDatabase, RegistrationDatabase.DatabaseType.course);
+            RegistrationDatabase.Read(courseHistoryDatabase, RegistrationDatabase.DatabaseType.courseHistory);
+
+            RegistrationDatabase.userDatabase.Add("Staff", new Faculty("Staff", "Staff", "Staff", "Staff", "Staff", "faculty"));
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

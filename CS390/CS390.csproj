@@ -51,7 +51,37 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin.cs" />
+    <Compile Include="AdminDashboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AdminDashboard.Designer.cs">
+      <DependentUpon>AdminDashboard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AdminManagerDashboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AdminManagerDashboard.Designer.cs">
+      <DependentUpon>AdminManagerDashboard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ChangeTime.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ChangeTime.Designer.cs">
+      <DependentUpon>ChangeTime.cs</DependentUpon>
+    </Compile>
     <Compile Include="Course.cs" />
+    <Compile Include="ProfessorDashboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProfessorDashboard.Designer.cs">
+      <DependentUpon>ProfessorDashboard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="StudentList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StudentList.Designer.cs">
+      <DependentUpon>StudentList.cs</DependentUpon>
+    </Compile>
     <Compile Include="Student.cs" />
     <Compile Include="Faculty.cs" />
     <Compile Include="LogInScreen.cs">
@@ -69,10 +99,24 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegistrationDatabase.cs" />
-    <Compile Include="Transaction.cs" />
     <Compile Include="User.cs" />
+    <EmbeddedResource Include="AdminDashboard.resx">
+      <DependentUpon>AdminDashboard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AdminManagerDashboard.resx">
+      <DependentUpon>AdminManagerDashboard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ChangeTime.resx">
+      <DependentUpon>ChangeTime.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LogInScreen.resx">
       <DependentUpon>LogInScreen.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProfessorDashboard.resx">
+      <DependentUpon>ProfessorDashboard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StudentList.resx">
+      <DependentUpon>StudentList.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="StudentDashboard.resx">
       <DependentUpon>StudentDashboard.cs</DependentUpon>
@@ -97,25 +141,24 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Resources\userDB.in">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\courseDB.in">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\historyDB.in">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\LoginScreenBackground.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\UserDatabase.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="bin\Debug\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\CourseDatabase.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Dashboard Background.png" />

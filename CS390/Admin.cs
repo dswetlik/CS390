@@ -15,37 +15,51 @@ namespace CS390
             
         }
 
-        public override void ViewTransactionHistory()
+        //adds courseName to enrolledCourses of the given professor
+        public void AddProfessorCourse(string courseName, Faculty professorName)
         {
-
+            professorName.AddCourse(courseName);
         }
 
         //adds courseName to enrolledCourses of the given professor
-        void AddProfessorCourse(string courseName, Faculty professorName)
+        public void AddStudentCourse(string courseName, Student studentName)
         {
-
-        }
-
-        //adds courseName to enrolledCourses of the given professor
-        void AddStudentCourse(string courseName, Student studnetName)
-        {
-
+            studentName.AddCourse(courseName);
         }
 
         //verify if courseName is in enrolledCourses of the given professor
         //remove courseName from enrolledCourses of the given professor
-        void DropProfessorCourse(string courseName, Faculty professorName)
+        public void DropProfessorCourse(string courseName, Faculty professorName)
         {
-
+            professorName.DropCourse(courseName);
         }
 
         //verify if courseName is in enrolledCourses of the given student
         //remove courseName from enrolledCourses of the given student
-        void DropStudentCourse(string courseName, Student studentName)
+        public void DropStudentCourse(string courseName, Student studentName)
         {
-
+            studentName.DropCourse(courseName);
         }
 
+        /// <summary>
+        /// Removes course from RegistrationDatabase
+        /// </summary>
+        /// <param name="courseID">Valid Course ID of a Course</param>
+        public void RemoveCourse(string courseID)
+        {
+            if(this.GetStatus().Equals("manager"))
+            {
+                RegistrationDatabase.RemoveCourse(courseID);
+            }
+        }
+
+        public void RemoveUser(string userName)
+        {
+            if(this.GetStatus().Equals("manager"))
+            {
+                RegistrationDatabase.RemoveUser(userName);
+            }
+        }
         //print out enrolledCourses of given professor
         void ViewStudentSchedule(Faculty professorName)
         {
@@ -63,14 +77,6 @@ namespace CS390
         {
 
         }
-
-        /*
-        //implement later
-        void reviewPetitions();
-        void updateLog();
-        void submitGrades();
-        void checkGraduation();
-        */
     }
 
 }
